@@ -27,6 +27,13 @@ async function run() {
     const booksCollection =  database.collection("Ebooks")
 
     // Ebooks
+
+    app.get('/api/ebooks',async(req,res)=>{
+      const cursor = booksCollection.find({});
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
     app.post('/api/ebooks',async(req,res)=>{
       const ebook = req.body
       const newEbook = {
@@ -37,9 +44,6 @@ async function run() {
       res.send(result)
     })
 
-
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
