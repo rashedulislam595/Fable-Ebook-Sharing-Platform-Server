@@ -24,6 +24,18 @@ async function run() {
     await client.connect();
 
     const database = client.db("Ebook-Sharing-Platform");
+    const booksCollection =  database.collection("Ebooks")
+
+    // Ebooks
+    app.post('/api/ebooks',async(req,res)=>{
+      const ebook = req.body
+      const newEbook = {
+        ...ebook,
+        createdAt: new Date()
+      }
+      const result = await booksCollection.insertOne(newEbook)
+      res.send(result)
+    })
 
 
     // Connect the client to the server	(optional starting in v4.7)
