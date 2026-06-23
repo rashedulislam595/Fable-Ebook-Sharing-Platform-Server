@@ -29,7 +29,11 @@ async function run() {
     // Ebooks
 
     app.get('/api/ebooks',async(req,res)=>{
-      const cursor = booksCollection.find({});
+      const query = {}
+      if(req.query.writerId){
+        query.writerId= req.query.writerId
+      }
+      const cursor = booksCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     })
