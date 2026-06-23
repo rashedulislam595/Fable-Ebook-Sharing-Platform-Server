@@ -24,28 +24,29 @@ async function run() {
     await client.connect();
 
     const database = client.db("Ebook-Sharing-Platform");
-    const booksCollection =  database.collection("Ebooks")
+    const booksCollection = database.collection("Ebooks");
+    const ebookPurchasesCollection = database.collection("EbooksPurchases")
 
     // Ebooks
 
-    app.get('/api/ebooks',async(req,res)=>{
+    app.get('/api/ebooks', async (req, res) => {
       const query = {}
-      if(req.query.writerId){
-        query.writerId= req.query.writerId
+      if (req.query.writerId) {
+        query.writerId = req.query.writerId
       }
       const cursor = booksCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.get('/api/ebooks/:id',async(req,res)=>{
+    app.get('/api/ebooks/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await booksCollection.findOne(query)
       res.send(result)
     })
 
-    app.post('/api/ebooks',async(req,res)=>{
+    app.post('/api/ebooks', async (req, res) => {
       const ebook = req.body
       const newEbook = {
         ...ebook,
@@ -54,6 +55,31 @@ async function run() {
       const result = await booksCollection.insertOne(newEbook)
       res.send(result)
     })
+
+    // purchases
+    app.post('/api/purchases', async (req, res) => {
+      const purchase = req.body;
+
+      const existingPurchase = await ebookPurchasesCollection.findOne({
+        transactionId: purchase.transactionId,
+      });
+
+      if (existingPurchase) {
+        return res.send({
+          success: true,
+          message: "Already saved",
+        });
+      }
+
+      const updatePurchase = {
+        ...purchase,
+        createdAt: new Date()
+      }
+
+      const result = await ebookPurchasesCollection.insertOne(updatePurchase);
+
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
