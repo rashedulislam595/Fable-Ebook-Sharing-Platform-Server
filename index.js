@@ -26,6 +26,7 @@ async function run() {
     const database = client.db("Ebook-Sharing-Platform");
     const booksCollection = database.collection("Ebooks");
     const ebookPurchasesCollection = database.collection("EbooksPurchases")
+    const bookmarkCollection = database.collection('EbooksBookmarks')
 
     // Ebooks
 
@@ -67,9 +68,9 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/api/purchases/:id',async(req,res)=>{
+    app.get('/api/purchases/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await ebookPurchasesCollection.findOne(query)
       res.send(result)
     })
@@ -97,6 +98,30 @@ async function run() {
 
       res.send(result);
     });
+
+    // bookmarks
+    app.post('/api/bookmarks', async (req, res) => {
+      const bookmark = req.body;
+
+      const existingBookmark = await bookmarkCollection.findOne({
+        ebookId: bookmark.ebookId,
+        userId: bookmark.userId,
+      })
+      if (existingBookmark) {
+        return res.send({
+          success: false,
+          message: "Already bookmarked",
+        });
+      }
+
+      const bookmarkData = {
+        ...bookmark,
+        createdAt: new Date()
+      }
+      const result = await bookmarkCollection.insertOne(bookmarkData)
+      res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
