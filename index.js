@@ -57,6 +57,16 @@ async function run() {
     })
 
     // purchases
+    app.get('/api/purchases', async (req, res) => {
+      const query = {}
+      if (req.query.buyerId) {
+        query.buyerId = req.query.buyerId
+      }
+      const cursor = ebookPurchasesCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
     app.post('/api/purchases', async (req, res) => {
       const purchase = req.body;
 
