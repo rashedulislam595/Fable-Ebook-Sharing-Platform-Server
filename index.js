@@ -100,6 +100,16 @@ async function run() {
     });
 
     // bookmarks
+    app.get('/api/bookmarks',async(req,res)=>{
+      const query = {}
+      if(req.query.userId){
+        query.userId = req.query.userId
+      }
+      const cursor = bookmarkCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
     app.post('/api/bookmarks', async (req, res) => {
       const bookmark = req.body;
 
