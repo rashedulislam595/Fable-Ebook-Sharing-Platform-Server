@@ -79,7 +79,9 @@ async function run() {
       const purchase = req.body;
 
       const existingPurchase = await ebookPurchasesCollection.findOne({
-        transactionId: purchase.transactionId,
+        buyerId: purchase.buyerId,
+        ebookId: purchase.ebookId,
+        writerId: purchase.writerId
       });
 
       if (existingPurchase) {
