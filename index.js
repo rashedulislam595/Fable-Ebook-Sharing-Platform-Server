@@ -67,6 +67,13 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/api/purchases/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await ebookPurchasesCollection.findOne(query)
+      res.send(result)
+    })
+
     app.post('/api/purchases', async (req, res) => {
       const purchase = req.body;
 
