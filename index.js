@@ -100,6 +100,13 @@ async function run() {
       res.send(result);
     });
 
+    app.delete('/api/ebooks/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const result = await booksCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result)
+    })
+
     app.get('/api/ebooks/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
