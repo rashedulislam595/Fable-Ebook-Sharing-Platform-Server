@@ -31,10 +31,27 @@ async function run() {
 
 
     // users
-    app.get('/api/users',async(req,res)=>{
+    app.get('/api/users', async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
+
+    app.patch('/api/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const userData = req.body;
+      console.log(id)
+
+      const result = await usersCollection.updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: {
+            role: userData.role,
+          },
+        }
+      );
+
+      res.send(result);
+    });
 
     // Ebooks
     app.get('/api/ebooks', async (req, res) => {
@@ -109,9 +126,9 @@ async function run() {
     });
 
     // bookmarks
-    app.get('/api/bookmarks',async(req,res)=>{
+    app.get('/api/bookmarks', async (req, res) => {
       const query = {}
-      if(req.query.userId){
+      if (req.query.userId) {
         query.userId = req.query.userId
       }
       const cursor = bookmarkCollection.find(query)
