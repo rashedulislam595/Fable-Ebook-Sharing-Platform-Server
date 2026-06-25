@@ -76,6 +76,9 @@ async function run() {
       if (req.query.writerId) {
         query.writerId = req.query.writerId
       }
+      if (req.query.status) {
+        query.status = req.query.status;
+      }
       const cursor = booksCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
