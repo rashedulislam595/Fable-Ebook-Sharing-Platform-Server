@@ -36,10 +36,27 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/api/users/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const user = await usersCollection.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (user.role === "admin") {
+        return res.status(403).send({
+          success: false,
+          message: "Admin accounts cannot be deleted",
+        });
+      }
+
+      const result = await usersCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result)
+    })
+
     app.patch('/api/users/:id', async (req, res) => {
       const id = req.params.id;
       const userData = req.body;
-      console.log(id)
 
       const result = await usersCollection.updateOne(
         { _id: new ObjectId(id) },
