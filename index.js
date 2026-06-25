@@ -27,9 +27,16 @@ async function run() {
     const booksCollection = database.collection("Ebooks");
     const ebookPurchasesCollection = database.collection("EbooksPurchases")
     const bookmarkCollection = database.collection('EbooksBookmarks')
+    const usersCollection = database.collection('user')
+
+
+    // users
+    app.get('/api/users',async(req,res)=>{
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
 
     // Ebooks
-
     app.get('/api/ebooks', async (req, res) => {
       const query = {}
       if (req.query.writerId) {
