@@ -86,14 +86,12 @@ async function run() {
 
     app.patch('/api/ebooks/:id', async (req, res) => {
       const id = req.params.id;
-      const userData = req.body;
+      const updateData = req.body;
 
       const result = await booksCollection.updateOne(
         { _id: new ObjectId(id) },
         {
-          $set: {
-            status: userData.status,
-          },
+          $set: updateData
         }
       );
 
