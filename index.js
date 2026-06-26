@@ -28,10 +28,34 @@ async function run() {
     const ebookPurchasesCollection = database.collection("EbooksPurchases")
     const bookmarkCollection = database.collection('EbooksBookmarks')
     const usersCollection = database.collection('user')
+    const sessionCollection = database.collection('session')
 
+    // verification related
+    const verifyToken = async (req, res, next) => {
+      const authHeader = req.headers?.authorization
+
+      if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized Access' })
+      }
+
+      const token = authHeader.split(' ')[1]
+      if (!token) {
+        return res.status(401).send({ message: 'Unauthorized Access' })
+      }
+
+      const query = {token:token};
+      const session = await sessionCollection.findOne(query);
+      
+      const userId = session?.userId;
+      const userQuery= {_id:userId}
+      const user = await usersCollection.findOne(userQuery)
+
+      req.user=user
+      next()
+    }
 
     // users
-    app.get('/api/users', async (req, res) => {
+    app.get('/api/users', verifyToken, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
@@ -123,7 +147,7 @@ async function run() {
     })
 
     // purchases
-    app.get('/api/purchases', async (req, res) => {
+    app.get('/api/purchases',verifyToken, async (req, res) => {
       const query = {}
       if (req.query.buyerId) {
         query.buyerId = req.query.buyerId
@@ -136,7 +160,7 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/api/purchases/:id', async (req, res) => {
+    app.get('/api/purchases/:id',verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await ebookPurchasesCollection.findOne(query)
