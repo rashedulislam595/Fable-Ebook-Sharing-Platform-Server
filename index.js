@@ -128,7 +128,7 @@ async function run() {
       if (req.query.buyerId) {
         query.buyerId = req.query.buyerId
       }
-      if(req.query.writerId){
+      if (req.query.writerId) {
         query.writerId = req.query.writerId
       }
       const cursor = ebookPurchasesCollection.find(query);
@@ -199,6 +199,13 @@ async function run() {
         createdAt: new Date()
       }
       const result = await bookmarkCollection.insertOne(bookmarkData)
+      res.send(result)
+    })
+
+    app.delete('/api/bookmarks/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const result = await bookmarkCollection.deleteOne({ _id: new ObjectId(id) });
       res.send(result)
     })
 
