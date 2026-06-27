@@ -54,13 +54,32 @@ async function run() {
       next()
     }
 
+    const verifyReader = async(req,res,next)=>{
+      if(req.user?.role !== 'reader'){
+        return res.status(403).send({message:'Forbidden Access'})
+      }
+      next()
+    }
+    const verifyWriter = async(req,res,next)=>{
+      if(req.user?.role !== 'writer'){
+        return res.status(403).send({message:'Forbidden Access'})
+      }
+      next()
+    }
+    const verifyAdmin = async(req,res,next)=>{
+      if(req.user?.role !== 'admin'){
+        return res.status(403).send({message:'Forbidden Access'})
+      }
+      next()
+    }
+
     // users
-    app.get('/api/users', verifyToken, async (req, res) => {
+    app.get('/api/users', verifyToken,verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
 
-    app.delete('/api/users/:id', async (req, res) => {
+    app.delete('/api/users/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
 
       const user = await usersCollection.findOne({
@@ -78,7 +97,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/api/users/:id', async (req, res) => {
+    app.patch('/api/users/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const userData = req.body;
 
@@ -108,7 +127,7 @@ async function run() {
       res.send(result);
     })
 
-    app.patch('/api/ebooks/:id', async (req, res) => {
+    app.patch('/api/ebooks/:id',verifyToken, async (req, res) => {
       const id = req.params.id;
       const updateData = req.body;
 
@@ -122,7 +141,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete('/api/ebooks/:id', async (req, res) => {
+    app.delete('/api/ebooks/:id',verifyToken, async (req, res) => {
       const id = req.params.id;
 
       const result = await booksCollection.deleteOne({ _id: new ObjectId(id) });
@@ -136,7 +155,7 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/api/ebooks', async (req, res) => {
+    app.post('/api/ebooks',verifyToken,verifyWriter, async (req, res) => {
       const ebook = req.body
       const newEbook = {
         ...ebook,
@@ -160,14 +179,17 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/api/purchases/:id',verifyToken, async (req, res) => {
+    app.get('/api/purchases/:id',verifyToken, verifyReader, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
+
+      console.log('reader',req.user,id)
+
       const result = await ebookPurchasesCollection.findOne(query)
       res.send(result)
     })
 
-    app.post('/api/purchases', async (req, res) => {
+    app.post('/api/purchases',verifyToken, verifyReader, async (req, res) => {
       const purchase = req.body;
 
       const existingPurchase = await ebookPurchasesCollection.findOne({
@@ -194,7 +216,7 @@ async function run() {
     });
 
     // bookmarks
-    app.get('/api/bookmarks', async (req, res) => {
+    app.get('/api/bookmarks',verifyToken, async (req, res) => {
       const query = {}
       if (req.query.userId) {
         query.userId = req.query.userId
@@ -204,7 +226,7 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/api/bookmarks', async (req, res) => {
+    app.post('/api/bookmarks',verifyToken, async (req, res) => {
       const bookmark = req.body;
 
       const existingBookmark = await bookmarkCollection.findOne({
@@ -226,7 +248,7 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/api/bookmarks/:id', async (req, res) => {
+    app.delete('/api/bookmarks/:id',verifyToken, async (req, res) => {
       const id = req.params.id;
 
       const result = await bookmarkCollection.deleteOne({ _id: new ObjectId(id) });
